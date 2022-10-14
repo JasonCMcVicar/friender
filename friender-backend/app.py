@@ -8,7 +8,7 @@ from psycopg2 import IntegrityError
 from werkzeug.utils import secure_filename
 from models import db, connect_db, User, Like, Dislike
 from forms import CSRFProtection, SignUpForm, LoginForm, PhotoForm
-
+# test
 app = Flask(__name__)
 
 # configure our environmental and global variables
