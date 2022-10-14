@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, flash, session, g
+from flask import Flask, request, render_template, redirect, flash, session, g, current_app
 from flask_debugtoolbar import DebugToolbarExtension
 import boto3
 import os
@@ -9,11 +9,12 @@ from werkzeug.utils import secure_filename
 from models import db, connect_db, User, Like, Dislike
 from forms import CSRFProtection, SignUpForm, LoginForm, PhotoForm
 # test
+
 app = Flask(__name__)
 
+
 # configure our environmental and global variables
-app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ['DATABASE_URL'].replace("postgres://", "postgresql://"))
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
@@ -28,17 +29,17 @@ s3 = boto3.client(
     aws_access_key_id=app.config['S3_KEY'],
     aws_secret_access_key=app.config['S3_SECRET']
 )
-
+with app.app_context():
+    print (current_app.name, "hi")
 # CONNECT OUR APP TO OUR PSQL DATABASE
-connect_db(app)
-# db.drop_all()
-db.create_all()
+    connect_db(app)
+    db.drop_all()
+    db.create_all()
 
 # debug = DebugToolbarExtension(app)
 
 
 # ROUTES
-
 @app.before_request
 def add_user_to_g():
     """If we're logged in, add curr user to Flask g.
@@ -89,12 +90,12 @@ def generate_landing():
         likes_id = [u.id for u in g.user.liking]
 
         users = [user for user in User
-                 .query
-                 .filter(User.id.notin_(dislikes_id))
-                 .filter(User.id.notin_(likes_id))
-                 .all()
-                 if user.id != g.user.id
-                 ]
+                .query
+                .filter(User.id.notin_(dislikes_id))
+                .filter(User.id.notin_(likes_id))
+                .all()
+                if user.id != g.user.id
+                ]
 
         return render_template("home.html", users=users)
 
