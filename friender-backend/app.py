@@ -33,10 +33,10 @@ with app.app_context():
     print (current_app.name, "hi")
 # CONNECT OUR APP TO OUR PSQL DATABASE
     connect_db(app)
-    db.drop_all()
+    # db.drop_all()
     db.create_all()
 
-# debug = DebugToolbarExtension(app)
+debug = DebugToolbarExtension(app)
 
 
 # ROUTES
